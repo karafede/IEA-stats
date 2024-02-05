@@ -1,0 +1,331 @@
+
+---
+title: "Statistiche IEA 2021-2022" 
+author:
+- Federico Karagulian
+date: "ultima versione `r format(Sys.time(), '%d %B %Y, %H:%M')`"
+output:
+  word_document: 
+    reference_docx: word_style_FK.docx
+  pdf_document: default
+  html_document: default
+  number_sections: true
+  bookdown::word_document: default
+---
+
+
+## 1. Statistics IEA 2021-2022: Fleet totals
+
+
+
+*<br/><br/>*
+
+
+```{r, message = FALSE, echo = FALSE, warning = FALSE, fig.width=9,fig.height=5,  fig.cap = "**Figura 1.** Serie temporale oraria del numero di passaggi per tutti i tipi di autoveicoli sull'autostrada A2 (km5+004) direzione Salerno (2017)"}
+
+
+rm(list = ls())
+
+library(ggplot2)
+library(stringr)
+library(tidyr)
+library(readr)
+library(broom)
+library(threadr)
+library(dplyr)
+library(dygraphs)
+library(ggpmisc)
+library(plotly)
+library(GGally)
+library(htmlwidgets)
+library(htmltools)
+library(webshot)
+library(ggrepel)
+library(openair)
+library(widgetframe)
+library(grid)
+library(gridExtra)
+library(pander)
+library(varhandle)
+options(scipen=5)
+
+# saving the original graphical parameters
+op <- par(no.readonly = TRUE)
+
+# load data
+# setwd
+WD <- "D:/Federico/IEA_stats/"
+
+# read all data
+Fleet_totals_2021 <- read.csv(paste0(WD,"Fleet_totals_2021.csv"), header = T, sep=";")
+Fleet_totals_2022 <- read.csv(paste0(WD,"Fleet_totals_2022.csv"), header = T, sep=";")
+names(Fleet_totals_2021) <- c("x", "Electric bike", "Electric moped (<50 kmph)", "Auto-rickshaw", "Motorcycle", "Motorcycle with sidecar", "Motorized tricycle", "Passenger vehicles", "Buses and Minibuses", "Light Commercial vehicles", "Medium and Heavy Weight Trucks")
+Fleet_totals_2021$year <- "2021"
+names(Fleet_totals_2022) <- c("x", "Electric bike", "Electric moped (<50 kmph)", "Auto-rickshaw", "Motorcycle", "Motorcycle with sidecar", "Motorized tricycle", "Passenger vehicles", "Buses and Minibuses", "Light Commercial vehicles", "Medium and Heavy Weight Trucks")
+Fleet_totals_2022$year <- "2022"
+
+
+Fleet_totals_2021 <- Fleet_totals_2021[(1:nrow(Fleet_totals_2021))-1,]
+Fleet_totals_2022 <- Fleet_totals_2022[(1:nrow(Fleet_totals_2022))-1,]
+
+
+Fleets_total <- rbind(Fleet_totals_2021,
+                      Fleet_totals_2022)
+
+write.csv(Fleets_total, "Fleets_total_2021_222.csv")
+
+
+# transpose data
+# Fleets_total <- gather(Fleets_total, "vehicle type", "records", 2:length(Fleets_total))
+Fleets_total <- gather(Fleets_total, "vehicle type", "records", -x, -year)
+names(Fleets_total) <- c("class", "year", "vehicle type", "records") 
+
+## remove rows with record == NA
+Fleets_total <- Fleets_total[!(is.na(Fleets_total$records) | Fleets_total$records==""), ]
+
+Fleets_total <- as.data.frame(Fleets_total)
+Fleets_total$records <- round(Fleets_total$records, digits = 0)
+Fleets_total$class <- as.character(Fleets_total$class)
+Fleets_total$year <- as.character(Fleets_total$year)
+
+
+
+### plot total records #####
+############################
+
+q <- ggplot(data = Fleets_total, 
+            aes(`vehicle type`, records, fill = `vehicle type`)) +
+  theme_bw() +
+  # facet_wrap(~year) +
+  facet_grid(year ~ class, scales = "free", space = "free") +
+   # facet_grid(class ~ year, scales = "free", space = "free") +
+   geom_bar(stat = "identity")  +
+  theme(strip.text.x = element_text(size = 14, colour = "black")) +
+  theme(strip.text.y = element_text(size = 14, colour = "black")) +
+   guides(fill=FALSE) +
+  # scale_fill_manual(values=c("#7f7fff", "#7fbf7f", "#ff0000", "#e5e500", "#8e8e8e")) +
+  theme(axis.text.x=element_text(angle=65,hjust=1,vjust=1, size=15)) +
+  theme(axis.text.x=element_text(size=12,face="bold", colour = "black")) +
+  theme(axis.title.x = element_blank()) +                                     
+  ylab("records") +   
+  ylim(0, 1600000) +
+   theme(axis.title.y = element_text(face="bold", colour="black", size=14),
+        axis.text.y  = element_text(angle=0, vjust=0.5, size=12, colour="black")) +
+  geom_text(aes(label = paste(records, sep = "")), size = 4, hjust = 0.5, vjust = -0.5) +
+  ggtitle("Fleet totals (2021 --> 2022)") + 
+  theme(plot.title = element_text(lineheight=.8, face="bold", size = 15))
+q
+
+
+  
+## save plot
+  dpi = 96
+  ggsave(filename=paste0("Fleet_totals.png"),
+         width=unit(8, "cm"), height=unit(7, "cm"),
+         dpi = dpi)
+
+
+
+```
+
+
+*<br/><br/>*
+
+
+## 2. Statistics IEA 2021-2022: Total Sales
+
+
+```{r, message = FALSE, echo = FALSE, warning = FALSE, fig.width=9,fig.height=5,  fig.cap = "**Figura 1.** Serie temporale oraria del numero di passaggi per tutti i tipi di autoveicoli sull'autostrada A2 (km5+004) direzione Salerno (2017)"}
+
+
+# read all data
+Total_sale_2021 <- read.csv(paste0(WD,"Total_sale_2021.csv"), header = T, sep=";")
+Total_sale_2022 <- read.csv(paste0(WD,"Total_sale_2022.csv"), header = T, sep=";")
+names(Total_sale_2021) <- c("x", "Electric bike", "Electric moped (<50 kmph)", "Auto-rickshaw", "Motorcycle", "Motorcycle with sidecar", "Motorized tricycle", "Passenger vehicles", "Buses and Minibuses", "Light Commercial vehicles", "Medium and Heavy Weight Trucks")
+Total_sale_2021$year <- "2021"
+names(Total_sale_2022) <- c("x", "Electric bike", "Electric moped (<50 kmph)", "Auto-rickshaw", "Motorcycle", "Motorcycle with sidecar", "Motorized tricycle", "Passenger vehicles", "Buses and Minibuses", "Light Commercial vehicles", "Medium and Heavy Weight Trucks")
+Total_sale_2022$year <- "2022"
+
+
+Total_sale_2021 <- Total_sale_2021[(1:nrow(Total_sale_2021))-1,]
+Total_sale_2022 <- Total_sale_2022[(1:nrow(Total_sale_2022))-1,]
+
+
+Total_sales <- rbind(Total_sale_2021,
+                      Total_sale_2022)
+
+write.csv(Total_sales, "Total_sales_2021_222.csv")
+
+
+
+# transpose data
+# Fleets_total <- gather(Fleets_total, "vehicle type", "records", 2:length(Fleets_total))
+Total_sales <- gather(Total_sales, "vehicle type", "records", -x, -year)
+names(Total_sales) <- c("class", "year", "vehicle type", "records") 
+
+## remove rows with record == NA
+Total_sales <- Total_sales[!(is.na(Total_sales$records) | Total_sales$records==""), ]
+
+Total_sales <- as.data.frame(Total_sales)
+Total_sales$records <- round(Total_sales$records, digits = 0)
+Total_sales$class <- as.character(Total_sales$class)
+Total_sales$year <- as.character(Total_sales$year)
+
+
+
+
+# q <- ggplot(data = Total_sales, 
+#             aes(`vehicle type`, records, fill = year)) +
+#   theme_bw() +
+#    facet_wrap(~class) +
+#   geom_bar(stat = "identity", position = position_stack()) +
+#   # scale_x_discrete(limits = categories) +
+#   geom_text_repel(aes(label=records), vjust=1, color="black",
+#             position = position_stack(0.85), size=4)+
+#   theme(legend.text = element_text(colour="black", size = 11, face = "bold")) +
+#   theme(axis.text.x=element_text(angle=45,hjust=1,vjust=1, size=13)) +
+#   theme(axis.text.x=element_text(size=13,face="bold", colour = "black")) +
+#   theme(axis.title.x = element_blank()) +
+#   ylab(expression(paste("numero di passaggi (a.u)"))) +
+#   theme(axis.title.y = element_text(face="bold", colour="black", size=12),
+#         axis.text.y  = element_text(angle=0, vjust=0.5, size=12, colour="black")) +
+#   ggtitle("Numero di passaggi totali (tutti i veicoli, 2017)") +
+#   theme(plot.title = element_text(lineheight=.8, face="bold", size = 13, hjust=0.5))
+# q
+
+
+### plot total records #####
+############################
+
+q <- ggplot(data = Total_sales, 
+            aes(`vehicle type`, records, fill = `vehicle type`)) +
+  theme_bw() +
+  # facet_wrap(~year) +
+  facet_grid(year ~ class, scales = "free", space = "free") +
+   # facet_grid(class ~ year, scales = "free", space = "free") +
+ geom_bar(stat = "identity")  +
+  theme(strip.text.x = element_text(size = 14, colour = "black")) +
+  theme(strip.text.y = element_text(size = 14, colour = "black")) +
+  guides(fill=FALSE) +
+  # scale_fill_manual(values=c("#7f7fff", "#7fbf7f", "#ff0000", "#e5e500", "#8e8e8e")) +
+  theme(axis.text.x=element_text(angle=65,hjust=1,vjust=1, size=15)) +
+  theme(axis.text.x=element_text(size=12,face="bold", colour = "black")) +
+  theme(axis.title.x = element_blank()) +                                     
+  ylab("records") +   
+  ylim(0, 600000) +
+   theme(axis.title.y = element_text(face="bold", colour="black", size=14),
+        axis.text.y  = element_text(angle=0, vjust=0.5, size=12, colour="black")) +
+  geom_text(aes(label = paste(records, sep = "")), size = 4, hjust = 0.5, vjust = -0.5) +
+  ggtitle("Total Sales (2021 --> 2022)") + 
+  theme(plot.title = element_text(lineheight=.8, face="bold", size = 15))
+q
+
+
+  
+## save plot
+  dpi = 96
+  ggsave(filename=paste0("Total_sales.png"),
+         width=unit(7, "cm"), height=unit(6, "cm"),
+         dpi = dpi)
+
+```
+
+
+
+
+*<br/><br/>*
+
+
+## 3. Statistics IEA 2021-2022: Charging Infrastructure
+
+
+```{r, message = FALSE, echo = FALSE, warning = FALSE, fig.width=9,fig.height=5,  fig.cap = "**Figura 1.** Serie temporale oraria del numero di passaggi per tutti i tipi di autoveicoli sull'autostrada A2 (km5+004) direzione Salerno (2017)"}
+
+
+# read all data
+charging_2021 <- read.csv(paste0(WD,"charging_infrastructure_2021.csv"), header = T, sep=",")
+charging_2022 <- read.csv(paste0(WD,"charging_infrastructure_2022.csv"), header = T, sep=",")
+
+names(charging_2021) <- c("type_a", "type_b", "number")
+charging_2021$year <- "2021"
+
+names(charging_2022) <- c("type_a", "type_b", "number")
+charging_2022$year <- "2022"
+
+# change row names
+charging_2021$type_b <- c("AC charging (<= 3.7 kW)"  ,
+                             "AC charging  (>3.7 kW, <= 22 kW)",
+                             "AC charging (43 kW)",
+                             "DC charging (<= 50 kW)",
+                             "DC charging (> 120kW- 250kW)",
+                             "DC charging (> 50 kW and <= 350 kW)",
+                             	"EM charging")
+
+charging_2022$type_b <- c("AC charging (<= 3.7 kW)"  ,
+                             "AC charging  (>3.7 kW, <= 22 kW)",
+                             "AC charging (43 kW)",
+                             "DC charging (<= 50 kW)",
+                             "DC charging (> 120kW- 250kW)",
+                             "DC charging (> 50 kW and <= 350 kW)",
+                             	"EM charging")
+
+# Total_sale_2021 <- Total_sale_2021[(1:nrow(Total_sale_2021))-1,]
+# Total_sale_2022 <- Total_sale_2022[(1:nrow(Total_sale_2022))-1,]
+
+
+total_chargers <- rbind(charging_2021,
+                      charging_2022)
+
+total_chargers <- as.data.frame(total_chargers)
+
+write.csv(total_chargers, "Total_Chargers_2021_2022.csv")
+
+
+# # transpose data
+# Total_sales <- gather(Total_sales, "vehicle type", "records", -x, -year)
+# names(Total_sales) <- c("class", "year", "vehicle type", "records") 
+# 
+# ## remove rows with record == NA
+# Total_sales <- Total_sales[!(is.na(Total_sales$records) | Total_sales$records==""), ]
+# 
+# Total_sales <- as.data.frame(Total_sales)
+# Total_sales$records <- round(Total_sales$records, digits = 0)
+# Total_sales$class <- as.character(Total_sales$class)
+# Total_sales$year <- as.character(Total_sales$year)
+
+
+
+### plot total records #####
+############################
+
+q <- ggplot(data = total_chargers, 
+            aes(type_b, number, fill = type_a)) +
+  theme_bw() +
+  geom_bar(stat = "identity")  +
+  facet_wrap(~year) +
+  theme(strip.text.x = element_text(size = 14, colour = "black")) +
+  theme(strip.text.y = element_text(size = 14, colour = "black")) +
+  guides(fill=FALSE) +
+  # scale_fill_manual(values=c("#7f7fff", "#7fbf7f", "#ff0000", "#e5e500", "#8e8e8e")) +
+  theme(axis.text.x=element_text(angle=65,hjust=1,vjust=1, size=10)) +
+  theme(axis.text.x=element_text(size=10,face="bold", colour = "black")) +
+  theme(axis.title.x = element_blank()) +                                     
+  ylab("records") +   
+  ylim(0, 30000) +
+   theme(axis.title.y = element_text(face="bold", colour="black", size=14),
+        axis.text.y  = element_text(angle=0, vjust=0.5, size=12, colour="black")) +
+  geom_text(aes(label = paste(number, sep = "")), size = 4, hjust = 0.5, vjust = -0.5) +
+  ggtitle("Number fo Charging outlets (2021 --> 2022)") + 
+  theme(plot.title = element_text(lineheight=.8, face="bold", size = 15))
+q
+
+
+  
+## save plot
+  dpi = 96
+  ggsave(filename=paste0("charging_infrastructure.png"),
+         width=unit(7, "cm"), height=unit(6, "cm"),
+         dpi = dpi)
+
+```
+

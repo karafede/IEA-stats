@@ -1,0 +1,11 @@
+Vehicle type;EVs _2021;EVs _2022;HEVs_2021;HEVs_2022;PHEVs_2021;PHEVs_2022;FCVs_2021;FCVs_2022;Total of this vehicle type (including ICEVs)_2021;Total of this vehicle type (including ICEVs)_2022
+Electric bike;1300000;1400000;;;;;;;50000000;50000000
+Electric moped (<50 kmph);3396;;;;;;;;1300000;1200000
+Auto-rickshaw;;;;;;;;;;
+Motorcycle;;;;;;;;;6800000;7100000
+Motorcycle with sidecar;;;;;;;;;;
+Motorized tricycle;;;;;;;;;;
+Passenger vehicles;122138;170428;964918;1486483;113583;183055;45;56;39717874;39822723
+Buses and Minibuses;669;792;;;;;13;13;99883;100199
+Light Commercial vehicles;9441;12977;5816;16284;489;1.087;;;4221718;4290042
+Medium and Heavy Weight Trucks;47;64;3;4;;;;;702000;783000

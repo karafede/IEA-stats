@@ -1,0 +1,8 @@
+Type of Public EVSE,,Number of Charging outlets (as of December 31st 2022)
+AC Level 1 Chargers ,AC charging (? 3.7 kW),4183
+AC Level 2 Chargers ,"AC charging  (>3.7 kW, ? 22 kW)",26942
+AC Fast Chargers ,AC charging (43 kW),921
+DC Fast Chargers ,DC charging (? 50 kW),1201
+Tesla Superchargers ,DC charging (> 120kW- 250kW),384
+Ultrafast-High power chargers,DC charging (> 50 kW and ? 350 kW),4347
+Inductive Chargers,EM charging,0
